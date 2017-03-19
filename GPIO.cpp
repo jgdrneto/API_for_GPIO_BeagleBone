@@ -72,7 +72,7 @@ class GPIO{
 		}
 
 		static void errorPPort(){
-			std::cerr << "this port not permissive GPIO" << std::endl;
+			std::cerr << "this port is not allowed GPIO" << std::endl;
 			exit(EXIT_FAILURE);
 		}
 
@@ -81,8 +81,18 @@ class GPIO{
 			exit(EXIT_FAILURE);
 		}
 
+		static void errorWDirection(PORTNUMBER pNumber){
+			std::cerr << "Wrong direction for port " << portNumberToString(pNumber) << std::endl;
+			exit(EXIT_FAILURE);
+		}
+
+		static void errorUValue(){
+			std::cerr << "Value not allowed " << std::endl;
+			exit(EXIT_FAILURE);
+		}
+
 		static bool actionValidation(PORTNUMBER pNumber){
-			if(GPIO::getInstance().map[pNumber].getPhysicalAddress()!=NOT_PSY_ADD){
+			if(GPIO::getInstance().map[pNumber].getPhysicalAddress()==NOT_PSY_ADD){
 				GPIO::errorPPort();
 				return false;
 			}else{
@@ -109,9 +119,7 @@ class GPIO{
 			if(direction==DIRECTION::NDDEF){
 				errorUDirection(pNumber);
 			}else{
-				if(actionValidation(pNumber)){
-					GPIO::getInstance().map[pNumber].setDirection(direction);
-				}
+				GPIO::getInstance().map[pNumber].setDirection(direction);
 			}
 		}
 
@@ -122,7 +130,11 @@ class GPIO{
 				DIRECTION v = GPIO::getInstance().map[pNumber].getDirection();
 
 				if(v != DIRECTION::NDDEF){
-					return GPIO::getInstance().map[pNumber].getValue();
+					if(GPIO::getInstance().map[pNumber].getDirection()==DIRECTION::OUT){
+						errorWDirection(pNumber);
+					}else{
+						return GPIO::getInstance().map[pNumber].getValue();
+					}
 				}else{
 					errorUDirection(pNumber);
 				}
@@ -132,8 +144,18 @@ class GPIO{
 			return VALUE::NVDEF;
 		}
 
-		static void output(PORTNUMBER number, VALUE value){
-			GPIO::getInstance().map[number].setValue(value);
+		static void output(PORTNUMBER pNumber, VALUE value){
+			if(actionValidation(pNumber)){
+				if(value==VALUE::NVDEF){
+					errorUValue();
+				}else{
+					if(GPIO::getInstance().map[pNumber].getDirection()==DIRECTION::IN){
+						errorWDirection(pNumber);
+					}else{
+						GPIO::getInstance().map[pNumber].setValue(value);
+					}
+				}
+			}
 		}
 };	
 
