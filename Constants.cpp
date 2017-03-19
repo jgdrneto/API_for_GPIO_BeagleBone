@@ -5,6 +5,8 @@
 #include <string>
 #include <iostream>
 
+#define NOT_PSY_ADD "nPA"
+
 enum PORTNAME {
 	DGND,
 	VDD_3V3,
@@ -18,10 +20,12 @@ enum PORTNAME {
 	GPIO_50,
 	GPIO_48,
 	GPIO_51,
-	C2_SLC,
+	GPIO_5,
+	GPIO_4,
+	C2_SCL,
 	C2_SDA,
 	GPIO_3,
-	CPIO_2,
+	GPIO_2,
 	GPIO_49,
 	GPIO_15,
 	GPIO_117,
@@ -127,8 +131,14 @@ std::string portNameToString(PORTNAME pName){
 		case GPIO_51:
 			return "GPIO_51";
 		break;
-		case C2_SLC:
-			return "C2_SLC";
+		case GPIO_5:
+			return "GPIO_5";
+		break;
+		case GPIO_4:
+			return "GPIO_4";
+		break;
+		case C2_SCL:
+			return "C2_SCL";
 		break;
 		case C2_SDA:
 			return "C2_SDA";
@@ -136,7 +146,7 @@ std::string portNameToString(PORTNAME pName){
 		case GPIO_3:
 			return "GPIO_3";
 		break;
-		case CPIO_2:
+		case GPIO_2:
 			return "CPIO_2";
 		break;
 		case GPIO_49:
