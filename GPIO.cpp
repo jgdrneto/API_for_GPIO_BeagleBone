@@ -44,7 +44,7 @@ class GPIO{
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_25,Port(PORTNAME::GPIO_117,"gpio117")));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_26,Port(PORTNAME::GPIO_14,"gpio14")));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_27,Port(PORTNAME::GPIO_115,"gpio115")));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_28,Port(PORTNAME::GPIO_113,"gpiO113")));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_28,Port(PORTNAME::GPIO_113,"gpio113")));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_29,Port(PORTNAME::GPIO_111,"gpio111")));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_30,Port(PORTNAME::GPIO_112,"gpio112")));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_31,Port(PORTNAME::GPIO_110,"gpio110")));
