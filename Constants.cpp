@@ -7,6 +7,14 @@
 
 #define NOT_PSY_ADD "nPA"
 
+enum TYPEPORT{
+	VDD,
+	DIGITAL,
+	ANALOGIC,
+	GND,
+	SYSTEM,
+};
+
 enum PORTNAME {
 	DGND,
 	VDD_3V3,

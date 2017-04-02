@@ -19,8 +19,10 @@ class Port{
 		std::string physicalAddress;
 		VALUE value;
 		DIRECTION direction;
-		
+		TYPEPORT typePort;
+
 		std::string PATH_GPIO = "/home/neto/gpio/";
+		#define PATH_ADC "/sys/bus/iio/devices/iio:device0/in_voltage"
 
 		//FUNCTIONS
 
@@ -107,15 +109,27 @@ class Port{
 
 		Port(){/*NULL*/};
 
-		Port(PORTNAME nName, std::string nAddress){
+		Port(PORTNAME nName, std::string nAddress,TYPEPORT tPort){
 			this->name = nName;
 			this->physicalAddress = nAddress;
 			this->value = VALUE::NVDEF;
 			this->direction = DIRECTION::NDDEF;
-			
-			if(!existDir(nAddress) && nAddress!=NOT_PSY_ADD){
-				executeCommand("echo " + getGPIOPortNumber(nAddress) + " > " + PATH_GPIO +"export");
+			this->typePort = tPort;
+
+			switch (tPort){
+				case DIGITAL :
+					if(!existDir(nAddress) && nAddress!=NOT_PSY_ADD){
+						executeCommand("echo " + getGPIOPortNumber(nAddress) + " > " + PATH_GPIO +"export");
+					}
+				break;
+				case ANALOGIC :
+					
+				break;
+				default:
+				break;
 			}
+
+			
 
 		}
 
