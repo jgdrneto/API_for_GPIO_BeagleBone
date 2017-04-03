@@ -49,14 +49,14 @@ class GPIO{
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_30,Port(PORTNAME::GPIO_112,"gpio112",TYPEPORT::DIGITAL)));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_31,Port(PORTNAME::GPIO_110,"gpio110",TYPEPORT::DIGITAL)));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_32,Port(PORTNAME::VDD_ADC,NOT_PSY_ADD,TYPEPORT::VDD)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_33,Port(PORTNAME::AIN4,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_33,Port(PORTNAME::AIN4,"in_voltage4_raw",TYPEPORT::ANALOGIC)));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_34,Port(PORTNAME::GNDA_ADC,NOT_PSY_ADD,TYPEPORT::GND)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_35,Port(PORTNAME::AIN6,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_36,Port(PORTNAME::AIN5,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_37,Port(PORTNAME::AIN2,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_38,Port(PORTNAME::AIN3,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_39,Port(PORTNAME::AIN0,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
-			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_40,Port(PORTNAME::AIN1,NOT_PSY_ADD,TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_35,Port(PORTNAME::AIN6,"in_voltage6_raw",TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_36,Port(PORTNAME::AIN5,"in_voltage5_raw",TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_37,Port(PORTNAME::AIN2,"in_voltage2_raw",TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_38,Port(PORTNAME::AIN3,"in_voltage3_raw",TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_39,Port(PORTNAME::AIN0,"in_voltage0_raw",TYPEPORT::ANALOGIC)));
+			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_40,Port(PORTNAME::AIN1,"in_voltage1_raw",TYPEPORT::ANALOGIC)));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_41,Port(PORTNAME::GPIO_20,"gpio20",TYPEPORT::DIGITAL)));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_42,Port(PORTNAME::GPIO_7,"gpio7",TYPEPORT::DIGITAL)));
 			map.insert(std::pair<PORTNUMBER, Port>(PORTNUMBER::P9_43,Port(PORTNAME::DGND,NOT_PSY_ADD,TYPEPORT::GND)));
@@ -75,6 +75,12 @@ class GPIO{
 			std::cerr << "this port is not allowed GPIO" << std::endl;
 			exit(EXIT_FAILURE);
 		}
+		
+		static void errorTPort(){
+			std::cerr << "this type port is incorrect" << std::endl;
+			exit(EXIT_FAILURE);
+		}
+		
 
 		static void errorUDirection(PORTNUMBER pNumber){
 			std::cerr << "Not defined direction for port " << portNumberToString(pNumber) << std::endl;
@@ -114,18 +120,32 @@ class GPIO{
 				return DIRECTION::NDDEF;
 			}			
 		}		
+		
+		static void setup(PORTNUMBER pNumber){
+			if(GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::ANALOGIC){
+				GPIO::getInstance().map[pNumber].setDirection(DIRECTION::IN);
+			}else{
+				errorTPort();			
+			}		
+		} 
 
 		static void setup(PORTNUMBER pNumber, DIRECTION direction){
-			if(direction==DIRECTION::NDDEF){
-				errorUDirection(pNumber);
+			
+			if(GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::DIGITAL){						
+						
+				if(direction==DIRECTION::NDDEF){
+					errorUDirection(pNumber);
+				}else{
+					GPIO::getInstance().map[pNumber].setDirection(direction);
+				}
 			}else{
-				GPIO::getInstance().map[pNumber].setDirection(direction);
+				errorTPort();
 			}
 		}
 
 		static VALUE input(PORTNUMBER pNumber){
 			
-			if(actionValidation(pNumber)){
+			if(actionValidation(pNumber) && GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::DIGITAL){
 
 				DIRECTION v = GPIO::getInstance().map[pNumber].getDirection();
 
@@ -143,9 +163,18 @@ class GPIO{
 			
 			return VALUE::NVDEF;
 		}
+		
+		static int inputAnalogic(PORTNUMBER pNumber){
+			
+			if(actionValidation(pNumber) && GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::ANALOGIC){
+				errorTPort();				
+			}
+			
+			return GPIO::getInstance().map[pNumber].getAnalogicValue();
+		}
 
 		static void output(PORTNUMBER pNumber, VALUE value){
-			if(actionValidation(pNumber)){
+			if(actionValidation(pNumber) && GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::DIGITAL){
 				if(value==VALUE::NVDEF){
 					errorUValue();
 				}else{

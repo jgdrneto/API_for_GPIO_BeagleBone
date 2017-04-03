@@ -20,9 +20,10 @@ class Port{
 		VALUE value;
 		DIRECTION direction;
 		TYPEPORT typePort;
+		int analogicValue;		
 
-		std::string PATH_GPIO = "/home/neto/gpio/";
-		#define PATH_ADC "/sys/bus/iio/devices/iio:device0/in_voltage"
+		std::string PATH_GPIO = "/sys/class/gpio/";
+		std::string PATH_ADC = "/sys/bus/iio/devices/iio:device0/";
 
 		//FUNCTIONS
 
@@ -115,6 +116,7 @@ class Port{
 			this->value = VALUE::NVDEF;
 			this->direction = DIRECTION::NDDEF;
 			this->typePort = tPort;
+			this->analogicValue = -1;			
 
 			switch (tPort){
 				case DIGITAL :
@@ -123,7 +125,7 @@ class Port{
 					}
 				break;
 				case ANALOGIC :
-					
+	
 				break;
 				default:
 				break;
@@ -140,17 +142,24 @@ class Port{
 		std::string getPhysicalAddress(){
 			return this->physicalAddress;
 		} 
+		
+		TYPEPORT getTypePort(){
+			return this->typePort;		
+		}
 
 		DIRECTION getDirection(){
+			
+			if(this->typePort == TYPEPORT::DIGITAL){
 
-			std::vector<std::string> v =  stringsOfFile(PATH_GPIO + this->physicalAddress + "/direction");
+				std::vector<std::string> v =  stringsOfFile(PATH_GPIO + this->physicalAddress + "/direction");
 
-			if(!v.empty()){
+				if(!v.empty()){
 
-				if(v[0]=="in"){
-					this->direction = DIRECTION::IN;
-				}else{
-					this->direction = DIRECTION::OUT;
+					if(v[0]=="in"){
+						this->direction = DIRECTION::IN;
+					}else{
+						this->direction = DIRECTION::OUT;
+					}
 				}
 			}
 
@@ -158,54 +167,73 @@ class Port{
 		}
 
 		VALUE getValue(){
+			
+			if(this->typePort == TYPEPORT::DIGITAL){
+				std::vector<std::string> v =  stringsOfFile(PATH_GPIO + this->physicalAddress + "/value");
 
-			std::vector<std::string> v =  stringsOfFile(PATH_GPIO + this->physicalAddress + "/value");
+				if(!v.empty()){
 
-			if(!v.empty()){
-
-				if(v[0]=="0"){
-					this->value = VALUE::LOW;
-				}else{
-					this->value = VALUE::HIGH;
+					if(v[0]=="0"){
+						this->value = VALUE::LOW;
+					}else{
+						this->value = VALUE::HIGH;
+					}
 				}
 			}
 
 			return this->value;
 		}
+		
+		int getAnalogicValue(){
+			if(this->typePort == TYPEPORT::ANALOGIC){
+				std::vector<std::string> v =  stringsOfFile(PATH_ADC + this->physicalAddress);
+				
+				this->analogicValue = std::stoi(v[0]);
+ 
+			}
+
+			return this->analogicValue;
+		} 
 
 		void setDirection(DIRECTION nDirection){
-
-			std::string v;
+			if(this->typePort == TYPEPORT::DIGITAL){
+				std::string v;
 			
-			if(nDirection==DIRECTION::IN){
-				v="in";
+				if(nDirection==DIRECTION::IN){
+					v="in";
+				}else{
+					v="out";
+
+				}
+			
+				this->direction = nDirection;
+
+				writeInFile(PATH_GPIO + this->physicalAddress + "/direction", v);
+
+				this->direction = nDirection;
 			}else{
-				v="out";
-
+				this->direction = DIRECTION::IN;
 			}
-			
-			this->direction = nDirection;
 
-			writeInFile(PATH_GPIO + this->physicalAddress + "/direction", v);
-
-			this->direction = nDirection;
 		}
 
 		void setValue(VALUE nValue){
+			if(this->typePort == TYPEPORT::DIGITAL){
 
-			std::string v;
+				std::string v;
 			
-			if(nValue==VALUE::LOW){
-				v="0";
-			}else{
-				v="1";
+				if(nValue==VALUE::LOW){
+					v="0";
+				}else{
+					v="1";
+
+				}
+
+				this->value = nValue;
+
+				writeInFile(PATH_GPIO + this->physicalAddress + "/value", v);
 
 			}
-
-			this->value = nValue;
-
-			writeInFile(PATH_GPIO + this->physicalAddress + "/value", v);
-
 		}
 };
 
