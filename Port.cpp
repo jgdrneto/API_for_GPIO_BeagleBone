@@ -186,6 +186,7 @@ class Port{
 		
 		int getAnalogicValue(){
 			if(this->typePort == TYPEPORT::ANALOGIC){
+
 				std::vector<std::string> v =  stringsOfFile(PATH_ADC + this->physicalAddress);
 				
 				this->analogicValue = std::stoi(v[0]);

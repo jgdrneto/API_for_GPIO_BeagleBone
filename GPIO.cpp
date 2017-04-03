@@ -143,34 +143,32 @@ class GPIO{
 			}
 		}
 
-		static VALUE input(PORTNUMBER pNumber){
+		static int input(PORTNUMBER pNumber){
 			
-			if(actionValidation(pNumber) && GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::DIGITAL){
+			if(actionValidation(pNumber)){
+				
+				if(GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::DIGITAL){
 
-				DIRECTION v = GPIO::getInstance().map[pNumber].getDirection();
+					DIRECTION v = GPIO::getInstance().map[pNumber].getDirection();
 
-				if(v != DIRECTION::NDDEF){
-					if(GPIO::getInstance().map[pNumber].getDirection()==DIRECTION::OUT){
-						errorWDirection(pNumber);
+					if(v != DIRECTION::NDDEF){
+						if(GPIO::getInstance().map[pNumber].getDirection()==DIRECTION::OUT){
+							errorWDirection(pNumber);
+						}else{
+							return GPIO::getInstance().map[pNumber].getValue();
+						}
 					}else{
-						return GPIO::getInstance().map[pNumber].getValue();
+						errorUDirection(pNumber);
 					}
 				}else{
-					errorUDirection(pNumber);
+					if(GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::ANALOGIC){
+						return GPIO::getInstance().map[pNumber].getAnalogicValue();
+					}				
 				}
 			
 			}
 			
 			return VALUE::NVDEF;
-		}
-		
-		static int inputAnalogic(PORTNUMBER pNumber){
-			
-			if(actionValidation(pNumber) && GPIO::getInstance().map[pNumber].getTypePort()==TYPEPORT::ANALOGIC){
-				errorTPort();				
-			}
-			
-			return GPIO::getInstance().map[pNumber].getAnalogicValue();
 		}
 
 		static void output(PORTNUMBER pNumber, VALUE value){
